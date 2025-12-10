@@ -88,7 +88,7 @@ Follow these steps exactly to set up the project on your local machine.
 
 ---
 
-## 💻 Running the Application
+## Running the Application
 
 To develop, you must have **two** terminals running simultaneously:
 
