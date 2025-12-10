@@ -1,37 +1,37 @@
-# 🚀 IT110 Final Project: Capy & Co
+# IT110 Final Project: Capy & Co
 
-> **Course:** IT110 - Modern Dynamic Web Pages  
+> **Course:** IT110 - Web Systems and Technologies 
 > **Objective:** A dynamic Single Page Application (SPA) that transforms raw public API data into a curated, visual narrative.
 
-## 📖 About The Project
+## About The Project
 
 
 Users can not only explore this data but also register to create their own "chapter" by saving favorites, adding notes, or creating collections—blending external data with personal user input.
 
-### 🌟 Key Features
-* [cite_start]**Visual Storytelling:** Data from an external API presented via a modern, marketing-style interface[cite: 13, 15].
-* [cite_start]**Authentication:** Secure user registration and login (Laravel Breeze)[cite: 94].
-* [cite_start]**User Personalization (CRUD):** Authenticated users can Create, Read, Update, and Delete their own related content (e.g., "Favorite Planets" or "Art Notes") stored in our local SQL database[cite: 69, 70].
-* [cite_start]**Seamless Interactivity:** Built as a SPA using Inertia.js, meaning no full page reloads[cite: 113].
-* [cite_start]**Modern UI/UX:** Responsive design utilizing Aceternity UI/Tailwind and Framer Motion for animations[cite: 55, 56].
+### Key Features
+* **Visual Storytelling:** Data from an external API presented via a modern, marketing-style interface.
+* **Authentication:** Secure user registration and login (Laravel Breeze).
+* **User Personalization (CRUD):** Authenticated users can Create, Read, Update, and Delete their own related content (e.g., "Favorite Planets" or "Art Notes") stored in our local SQL database.
+* **Seamless Interactivity:** Built as a SPA using Inertia.js, meaning no full page reloads.
+* **Modern UI/UX:** Responsive design utilizing Aceternity UI/Tailwind and Framer Motion for animations.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Backend**
-* [cite_start]![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white) **Laravel (PHP)**: Core backend framework[cite: 52].
-* [cite_start]**MySQL**: Relational database for user data and CRUD operations[cite: 54].
+* **Laravel (PHP)**: Core backend framework.
+* **MySQL**: Relational database for user data and CRUD operations.
 
 **Frontend**
-* [cite_start]![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB) **React**: JavaScript library for UI[cite: 53].
-* [cite_start]![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white) **Tailwind CSS**: Utility-first styling[cite: 55].
-* [cite_start]**Inertia.js**: The bridge connecting Laravel and React[cite: 54].
-* [cite_start]**Framer Motion**: For micro-interactions and animations[cite: 56].
+* **React**: JavaScript library for UI.
+* **Tailwind CSS**: Utility-first styling.
+* **Inertia.js**: The bridge connecting Laravel and React.
+* **Framer Motion**: For micro-interactions and animations.
 
 ---
 
-## ⚙️ Installation Guide (For Team Members)
+## Installation Guide (For Team Members)
 
 Follow these steps exactly to set up the project on your local machine.
 
@@ -97,7 +97,7 @@ To develop, you must have **two** terminals running simultaneously:
 php artisan serve
 ```
 
-**Terminal 1 (Frontend Compiler)**
+**Terminal 2 (Frontend Compiler)**
 ```bash
 npm run ev
 ```
