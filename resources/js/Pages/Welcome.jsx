@@ -44,7 +44,7 @@ export default function Welcome() {
                                 Idle
                             </button>
 
-                            <button onClick={() => setAnimation("walking")} className={`px-4 py-2 rounded-lg font-bold transition ${animation === "Walk" ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"}`}>
+                            <button onClick={() => setAnimation("walk")} className={`px-4 py-2 rounded-lg font-bold transition ${animation === "Walk" ? "bg-blue-500" : "bg-gray-700 hover:bg-gray-600"}`}>
                                 Walk
                             </button>
 

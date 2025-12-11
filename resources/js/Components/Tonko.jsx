@@ -3,7 +3,7 @@ import { useGLTF, useAnimations } from '@react-three/drei'
 
 export function Tonko({ currentAnimation, ...props }) {
   const group = useRef()
-  const { nodes, materials, animations } = useGLTF('/models/Capy_animations.glb')
+  const { nodes, materials, animations } = useGLTF('/models/capy_final.glb')
   const { actions } = useAnimations(animations, group)
 
   useEffect(() => {
@@ -33,11 +33,11 @@ export function Tonko({ currentAnimation, ...props }) {
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">
-        <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={3}>
+        <group name="Armature" rotation={[Math.PI / 2, 0, 0]} scale={0.3}>
           <skinnedMesh
             name="geometry_0"
             geometry={nodes.geometry_0.geometry}
-            material={materials['Material_0.004']}
+            material={materials['Material_0.005']}
             skeleton={nodes.geometry_0.skeleton}
           />
           <primitive object={nodes.mixamorigHips} />
@@ -48,4 +48,4 @@ export function Tonko({ currentAnimation, ...props }) {
   )
 }
 
-useGLTF.preload('/models/Capy_animations.glb')
+useGLTF.preload('/models/capy_final.glb')
