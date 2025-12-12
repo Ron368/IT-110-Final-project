@@ -1,7 +1,21 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import LoadingScreen from '@/Components/loadingScreen'; // Imports the new component
 import { Head } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
+    // 1. Set initial state to true so it shows immediately
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // 2. Set a timer to turn it off after 2.5 seconds
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <AuthenticatedLayout
             header={
@@ -11,6 +25,9 @@ export default function Dashboard() {
             }
         >
             <Head title="Dashboard" />
+
+            {/* 3. This renders the component we made in Step 1 */}
+            <LoadingScreen isVisible={isLoading} />
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">

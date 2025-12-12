@@ -10,4 +10,8 @@ export default defineConfig({
         }),
         react(),
     ],
+    // ADD THIS SERVER BLOCK
+    server: { 
+        host: '127.0.0.1',
+    },
 });
