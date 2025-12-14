@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
@@ -35,4 +34,10 @@ return [
         ],
     ],
 
+    'mealdb' => [
+        'base_url' => env('MEALDB_BASE_URL', 'https://www.themealdb.com/api/json/v1/1'),
+        'api_key' => env('MEALDB_API_KEY', '1'), // free key is usually "1"
+        'cache_ttl' => (int) env('MEALDB_CACHE_TTL', 600),
+        'timeout' => (int) env('MEALDB_TIMEOUT', 8),
+    ],
 ];
