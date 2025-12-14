@@ -30,6 +30,7 @@ Route::prefix('api/mealdb')->group(function () {
     Route::get('meal/{id}', [MealDBController::class, 'meal'])->whereNumber('id')->name('mealdb.meal');
     Route::get('random', [MealDBController::class, 'random'])->name('mealdb.random');
     Route::get('categories', [MealDBController::class, 'categories'])->name('mealdb.categories');
+    Route::get('random-batch', [MealDBController::class, 'randomBatch'])->name('mealdb.randomBatch');
 });
 
 require __DIR__.'/auth.php';
