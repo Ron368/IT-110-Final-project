@@ -21,3 +21,20 @@ export async function mealdbRandom() {
   if (!res.ok) throw new Error(`MealDB random failed (${res.status})`);
   return res.json();
 }
+
+export async function mealdbCategories() {
+  const res = await fetch(`/api/mealdb/categories`, {
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) throw new Error(`MealDB categories failed (${res.status})`);
+  return res.json();
+}
+
+// NEW:
+export async function mealdbRandomBatch(count = 4) {
+  const res = await fetch(`/api/mealdb/random-batch?count=${encodeURIComponent(count)}`, {
+    headers: { Accept: 'application/json' },
+  });
+  if (!res.ok) throw new Error(`MealDB random batch failed (${res.status})`);
+  return res.json();
+}

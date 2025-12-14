@@ -1,11 +1,23 @@
-import { useState, useEffect } from 'react'; 
+import { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import LoadingScreen from '@/Components/LoadingScreen';
 import Capy from '@/Components/Capy';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import Navbar from '@/Components/Navbar'; // Import the new component
+import Navbar from '@/Components/Navbar';
+import RecipeTimeline from '@/Components/RecipeTimeline';
+import { mealdbRandomBatch } from '@/api/mealdb'; // NEW
+
+function preloadImage(url) {
+    if (!url) return Promise.resolve();
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = url;
+    });
+}
 
 export default function Welcome() {
     // State for loading screen visibility
@@ -27,6 +39,44 @@ export default function Welcome() {
         const total = 8100; 
         const t = setTimeout(() => setShowContent(true), total);
         return () => clearTimeout(t);
+    }, []);
+
+    const [preloadedMeals, setPreloadedMeals] = useState(null);
+
+    useEffect(() => {
+        let alive = true;
+
+        (async () => {
+            // 1) keep the loading screen up for at least 8s
+            const minDelay = new Promise((r) => setTimeout(r, 8000));
+
+            // 2) fetch meals + preload their images during the loading screen
+            const preloadMeals = (async () => {
+                try {
+                    const data = await mealdbRandomBatch(4); // hits /api/mealdb/random-batch
+                    const meals = Array.isArray(data?.meals) ? data.meals.slice(0, 4) : [];
+
+                    await Promise.all(meals.map((m) => preloadImage(m?.strMealThumb)));
+
+                    if (!alive) return;
+                    setPreloadedMeals(meals);
+                } catch {
+                    // don't block the landing page if API fails
+                    if (!alive) return;
+                    setPreloadedMeals([]); // timeline can handle empty/error state
+                }
+            })();
+
+            await Promise.all([minDelay, preloadMeals]);
+
+            if (!alive) return;
+            setIsLoading(false);
+            setShowContent(true);
+        })();
+
+        return () => {
+            alive = false;
+        };
     }, []);
 
     return (
@@ -126,6 +176,9 @@ export default function Welcome() {
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Timeline renders with preloaded data/images */}
+                {showContent && <RecipeTimeline initialMeals={preloadedMeals} />}
             </div>
         </>
     );
