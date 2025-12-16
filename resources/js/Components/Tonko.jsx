@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useGLTF, useAnimations } from '@react-three/drei';
 
-export default function Tonko({ currentAnimation = "Run", ...props }) {
+export default function Tonko({ currentAnimation = "run", ...props }) {
     const group = useRef();
     // Load your specific Capybara file
     const { nodes, materials, animations } = useGLTF('/models/tonko_animations.glb');
