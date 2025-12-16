@@ -1,194 +1,164 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useVideoTexture, Environment } from '@react-three/drei';
-import { useRef, useMemo, useEffect, Suspense } from 'react'; // CHANGED: add Suspense
+import { Canvas, useFrame } from '@react-three/fiber';
+import { useTexture, Environment } from '@react-three/drei';
+import { useRef, useMemo, Suspense } from 'react';
 import * as THREE from 'three';
 import { motion, AnimatePresence } from 'framer-motion';
 import Capy from './Capy';
 
-// --- 1. BILLBOARD (Same as before) ---
-function Billboard({ position, videoUrl, totalLength }) {
+// Flag assets reused across renders
+const FLAG_TEXTURES = [
+    '/models/argentina.svg', '/models/australia.svg', '/models/belgium.svg',
+    '/models/china.svg', '/models/denmark.svg', '/models/egypt.svg',
+    '/models/greece.svg', '/models/hongkong.svg', '/models/jamaica.svg',
+    '/models/japan.svg', '/models/newzealand.svg', '/models/philippines.svg',
+    '/models/singapore.svg', '/models/southafrica.svg', '/models/spain.svg',
+    '/models/srilanka.svg', '/models/thailand.svg', '/models/uk.svg',
+    '/models/usa.svg',
+];
+
+// Preload flag textures so the loading screen can render immediately
+FLAG_TEXTURES.forEach((texturePath) => useTexture.preload(texturePath));
+
+// --- 1. FLAG COMPONENT ---
+function FlagItem({ url, startPos, speed }) {
+    // Note: Ensure SVGs exist at public/models/
+    const texture = useTexture(url);
+
     const meshRef = useRef();
 
-    // CHANGED: don't suspend the scene waiting for canplay (start rendering immediately)
-    const texture = useVideoTexture(videoUrl, {
-        unsuspend: 'loadeddata', // was: 'canplay'
-        muted: true,
-        loop: true,
-        start: true,
-        playsInline: true,
-        crossOrigin: 'anonymous',
-    });
-
     useFrame((state, delta) => {
-        meshRef.current.position.z -= delta * 15;
-        if (meshRef.current.position.z < -50) {
-            meshRef.current.position.z += totalLength;
+        // Move flags from Right to Left
+        if (meshRef.current) {
+            meshRef.current.position.x -= delta * speed;
         }
     });
 
     return (
-        <group ref={meshRef} position={position}>
-            <mesh>
-                <boxGeometry args={[2.1, 1.2, 0.1]} />
-                <meshStandardMaterial color="#333" roughness={0.4} metalness={0.8} />
-            </mesh>
-            <mesh position={[0, 0, 0.06]}>
-                <planeGeometry args={[2, 1.1]} />
-                <meshBasicMaterial map={texture} toneMapped={false} />
-            </mesh>
-            <mesh position={[0, -1, 0]}>
-                <cylinderGeometry args={[0.05, 0.05, 1]} />
-                <meshStandardMaterial color="#222" />
-            </mesh>
+        <mesh ref={meshRef} position={startPos}>
+            {/* Standard flag aspect ratio */}
+            <planeGeometry args={[2.2, 1.3]} />
+            <meshBasicMaterial 
+                map={texture} 
+                transparent={true} 
+                side={THREE.DoubleSide} 
+                toneMapped={false} 
+            />
+        </mesh>
+    );
+}
+
+// --- 2. RUNNING CAPYBARA ---
+function RunnerCapy({ durationMs }) {
+    const groupRef = useRef();
+    
+    // The capybara should traverse from START_X to END_X in exactly durationMs milliseconds
+    // This ensures it syncs perfectly with the loading bar animation
+    const START_X = -5.0; 
+    const END_X = 5.0;
+    const DISTANCE = END_X - START_X; // 10 units
+    const DURATION_SECONDS = durationMs / 1000;
+    
+    // Speed in units per second: must travel DISTANCE in DURATION_SECONDS
+    const speed = DISTANCE / DURATION_SECONDS;
+
+    useFrame((state, delta) => {
+        if (groupRef.current) {
+            // Move by (speed * delta) each frame
+            // Total distance after DURATION_SECONDS: speed * DURATION_SECONDS = DISTANCE ✓
+            groupRef.current.position.x += delta * speed;
+            
+            // Clamp to END_X so it doesn't overshoot
+            if (groupRef.current.position.x > END_X) {
+                groupRef.current.position.x = END_X;
+            }
+        }
+    });
+
+    return (
+        // Position Y=-3.5 places the feet right on the top edge of the HTML loading bar
+        <group ref={groupRef} position={[START_X, -3.5, 0]} rotation={[0, Math.PI / 2, 0]}>
+            <Capy currentAnimation="run" scale={5} />
         </group>
     );
 }
 
-// --- 2. LOADING BAR ---
+// --- 3. LOADING BAR UI ---
 function LoadingBar({ durationMs }) {
     return (
         <motion.div
             initial={{ width: 0 }}
             animate={{ width: '100%' }}
-            transition={{ duration: durationMs / 1000, ease: 'easeInOut' }}
-            className="h-full bg-gray-800 rounded"
+            transition={{ duration: durationMs / 1000, ease: 'linear' }}
+            className="h-full bg-orange-400 rounded"
         />
     );
 }
 
-// --- 3. MAIN COMPONENT ---
+// --- 4. MAIN COMPONENT ---
 export default function LoadingScreen({ isVisible = true, durationMs = 2500 }) {
     if (!isVisible) return null;
 
-    const SPACING = 15;
-    const flagFiles = [
-        "/models/brazil.mp4", "/models/canada.mp4", "/models/france.mp4",
-        "/models/hongkong.mp4", "/models/italy.mp4", "/models/japan.mp4",
-        "/models/mexico.mp4", "/models/spain.mp4", "/models/usa.mp4",
-        "/models/philippines.mp4"
-    ];
-    const TOTAL_LENGTH = SPACING * flagFiles.length;
-
-    // NEW: warm up video loads ASAP so textures appear quicker
-    useEffect(() => {
-        flagFiles.forEach((url) => {
-            const v = document.createElement('video');
-            v.preload = 'auto';
-            v.src = url;
-            v.muted = true;
-            v.playsInline = true;
-            v.crossOrigin = 'anonymous';
-            // Calling load() encourages earlier network fetch
-            try { v.load(); } catch {}
-        });
-    }, []);
-
     const flags = useMemo(() => {
-        return flagFiles.map((url, i) => ({
+        return FLAG_TEXTURES.map((url, i) => ({
             id: i,
             url: url,
-            x: i % 2 === 0 ? -2 : 2,
-            z: (i * SPACING),
+            // Flags floating slightly above head level (Y=0.5)
+            // Starting just off-screen to the right relative to the narrower bar area
+            position: [6 + (i * 2.5), 0.5, -2], 
+            speed: 7.0
         }));
     }, []);
-
-    function CameraAnimator({ durationMs }) {
-        const { camera } = useThree();
-        const cameraStart = useMemo(() => new THREE.Vector3(0, 1, 12), []);
-        const cameraTarget = useMemo(() => new THREE.Vector3(0, 0.5, 6), []);
-        const elapsedRef = useRef(0);
-
-        useEffect(() => {
-            camera.position.copy(cameraStart);
-            camera.lookAt(0, 0, 0);
-            elapsedRef.current = 0;
-        }, [camera, cameraStart]);
-
-        useFrame((_, delta) => {
-            if (elapsedRef.current >= durationMs / 1000) return;
-            elapsedRef.current += delta;
-            const t = Math.min(elapsedRef.current / (durationMs / 1000), 1);
-            const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-            camera.position.lerpVectors(cameraStart, cameraTarget, eased);
-            camera.lookAt(0, 0, 0);
-        });
-
-        return null;
-    }
 
     return (
         <AnimatePresence>
             <motion.div
-                key="main-content"
-                initial={{ opacity: 1, backgroundColor: '#FFF8F0' }}
-                exit={{ opacity: 1 }}
-                transition={{ duration: 2.0, ease: "easeInOut" }}
-                style={{
-                    position: 'fixed',
-                    inset: 0,
-                    zIndex: 50,
-                    backgroundColor: '#fef3c7',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    pointerEvents: 'none',
-                }}
+                key="loading-overlay"
+                initial={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#fef3c7]"
             >
-                <div className="w-[600px] h-[200px] relative overflow-hidden rounded-xl bg-[#fef3c7]">
-                    <Canvas key="loading-canvas" shadows camera={{ position: [0, 1, 6], fov: 20 }}>
-                        <ambientLight intensity={0.5} />
-                        <spotLight position={[10, 10, 10]} intensity={1} />
-                        <CameraAnimator durationMs={durationMs} />
-
-                        {/* CHANGED: isolate heavy loaders so they can’t block the whole scene */}
+                {/* 3D SCENE CONTAINER */}
+                {/* Note: This container is wider (600px) than the bar (256px) to allow flags to fly in/out */}
+                <div className="w-[400px] h-[200px] relative overflow-hidden rounded-t-xl bg-[#fef3c7]">
+                    <Canvas shadows camera={{ position: [0, 1, 10], fov: 40 }}>
+                        <ambientLight intensity={0.7} />
+                        <pointLight position={[10, 10, 10]} intensity={1} />
+                        
                         <Suspense fallback={null}>
                             <Environment preset="city" />
                         </Suspense>
 
-                        <fog attach="fog" args={['#fef3c7', 8, 40]} />
-
                         <Suspense fallback={null}>
-                            <group position={[0, -1, 0]}>
-                                <Capy key="capy-loading" currentAnimation="run" scale={2.5} />
-                            </group>
+                            <RunnerCapy durationMs={durationMs} />
                         </Suspense>
 
-                        {flags.map((flag) => (
-                            <Suspense key={flag.id} fallback={null}>
-                                <Billboard
-                                    position={[flag.x, 0, flag.z]}
-                                    videoUrl={flag.url}
-                                    totalLength={TOTAL_LENGTH}
+                        <Suspense fallback={null}>
+                            {flags.map((flag) => (
+                                <FlagItem 
+                                    key={flag.id} 
+                                    url={flag.url} 
+                                    startPos={flag.position}
+                                    speed={flag.speed}
                                 />
-                            </Suspense>
-                        ))}
+                            ))}
+                        </Suspense>
+
+                        <fog attach="fog" args={['#fef3c7', 10, 25]} />
                     </Canvas>
                 </div>
 
-                <div className="mt-1 text-center w-64">
-                    <h2 className="text-gray-500 text-xs uppercase tracking-[0.25em] font-medium mb-3">
-                        Traveling to the next kitchen...
-                    </h2>
-                    <div className="w-full h-0.5 bg-gray-300/50 rounded overflow-hidden">
+                {/* LOADING BAR & TEXT */}
+                <div className="w-64 flex flex-col items-center">
+                    <div className="w-full h-1 bg-gray-300 rounded overflow-hidden mb-2">
                         <LoadingBar durationMs={durationMs} />
                     </div>
+                    
+                    <h2 className="text-gray-600 text-xs uppercase tracking-[0.25em] font-bold">
+                        Running to Kitchen...
+                    </h2>
                 </div>
             </motion.div>
-
-            <motion.div
-                key="black-overlay"
-                initial={{ opacity: 0 }}
-                exit={{ opacity: 1 }}
-                transition={{ duration: 1.0, ease: "easeInOut" }}
-                style={{
-                    position: 'fixed',
-                    inset: 0,
-                    zIndex: 51,
-                    backgroundColor: '#000000',
-                    pointerEvents: 'none',
-                }}
-            />
         </AnimatePresence>
     );
 }
