@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Recipe;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class RecipeController extends Controller
 {
@@ -11,7 +12,17 @@ class RecipeController extends Controller
     {
         $recipe->load('reviews.user');
 
-        return view('recipes.show', compact('recipe'));
+        $user = Auth::user();
+        $userReview = $user ? $recipe->reviews->firstWhere('user_id', $user->id) : null;
+        $isFavorited = $user ? $user->favorites()->where('recipe_id', $recipe->id)->exists() : false;
+        $averageRating = $recipe->reviews->avg('rating');
+
+        return view('recipes.show', compact(
+            'recipe',
+            'userReview',
+            'isFavorited',
+            'averageRating'
+        ));
     }
 }
 
