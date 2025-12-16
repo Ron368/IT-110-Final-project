@@ -3,13 +3,12 @@ import { Head } from '@inertiajs/react';
 import LoadingScreen from '@/Components/LoadingScreen';
 import Capy from '@/Components/Capy';
 import { Canvas } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
+import { OrbitControls, Environment, ContactShadows } from '@react-three/drei'; //
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import RecipeTimeline from '@/Components/RecipeTimeline';
 import { mealdbRandomBatch } from '@/api/mealdb';
 
-// Recommendation: Move this to resources/js/Utils/images.js
 function preloadImage(url) {
     if (!url) return Promise.resolve();
     return new Promise((resolve) => {
@@ -23,26 +22,48 @@ function preloadImage(url) {
 export default function Welcome() {
     // State for loading screen visibility
     const [isLoading, setIsLoading] = useState(true);
+
+    // Timer to turn off loading screen after duration
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 8000); // Matches LoadingScreen duration
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    // State to show content after loading + exit animation
     const [showContent, setShowContent] = useState(false);
+    useEffect(() => {
+        // Wait for loading (8000) + slight buffer (100ms) to ensure previous context is fully destroyed
+        const total = 8100; 
+        const t = setTimeout(() => setShowContent(true), total);
+        return () => clearTimeout(t);
+    }, []);
+
     const [preloadedMeals, setPreloadedMeals] = useState(null);
 
     useEffect(() => {
         let alive = true;
 
         (async () => {
-            // 1) Minimum loading time (8s)
+            // 1) keep the loading screen up for at least 8s
             const minDelay = new Promise((r) => setTimeout(r, 8000));
 
-            // 2) Fetch meals + preload images
+            // 2) fetch meals + preload their images during the loading screen
             const preloadMeals = (async () => {
                 try {
-                    const data = await mealdbRandomBatch(4);
+                    const data = await mealdbRandomBatch(4); // hits /api/mealdb/random-batch
                     const meals = Array.isArray(data?.meals) ? data.meals.slice(0, 4) : [];
+
                     await Promise.all(meals.map((m) => preloadImage(m?.strMealThumb)));
 
-                    if (alive) setPreloadedMeals(meals);
+                    if (!alive) return;
+                    setPreloadedMeals(meals);
                 } catch {
-                    if (alive) setPreloadedMeals([]);
+                    // don't block the landing page if API fails
+                    if (!alive) return;
+                    setPreloadedMeals([]); // timeline can handle empty/error state
                 }
             })();
 
@@ -50,12 +71,12 @@ export default function Welcome() {
 
             if (!alive) return;
             setIsLoading(false);
-            
-            // Small buffer to ensure smooth transition
-            setTimeout(() => setShowContent(true), 100);
+            setShowContent(true);
         })();
 
-        return () => { alive = false; };
+        return () => {
+            alive = false;
+        };
     }, []);
 
     return (
@@ -90,17 +111,30 @@ export default function Welcome() {
                             animate={{ opacity: showContent ? 1 : 0 }}
                             transition={{ duration: 1.5, delay: 0.3 }}
                         >
+                            {/* USE THE CSS CLASS HERE */}
                             <div className="welcome-canvas-container">
+                                {/* Ground Shadow */}
+                                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-96 h-32 bg-gradient-to-br from-black/25 via-black/15 to-transparent rounded-full blur-3xl" />
+                                
                                 {showContent && (
                                     <Canvas key="welcome-canvas" camera={{ position: [0, 0, 8], fov: 25 }}>
                                         <ambientLight intensity={0.8} />
                                         <spotLight position={[5, 5, 5]} intensity={1} />
                                         <Environment preset="studio" />
+                                        
                                         <group position={[0, -1.5, 0]}>
                                             <Capy 
                                                 key="capy-welcome"
                                                 currentAnimation="wave" 
-                                                scale={5.5} 
+                                                scale={5.5}
+                                            />
+                                            <ContactShadows 
+                                                position={[0, 0, 0]} 
+                                                opacity={0.8} 
+                                                scale={11} 
+                                                blur={2.0} 
+                                                far={7} 
+                                                color="#000000" 
                                             />
                                         </group>
                                     </Canvas>
@@ -110,6 +144,7 @@ export default function Welcome() {
 
                         {/* Right Column - Text Content */}
                         <div className="welcome-hero-right">
+                            {/* USE THE CSS CLASSES HERE */}
                             <motion.h1 
                                 className="welcome-title"
                                 initial={{ opacity: 0, y: -20 }}
@@ -143,5 +178,5 @@ export default function Welcome() {
                 {showContent && <RecipeTimeline initialMeals={preloadedMeals} />}
             </div>
         </>
-    ); 
+    );
 }

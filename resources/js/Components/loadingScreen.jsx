@@ -5,6 +5,20 @@ import * as THREE from 'three';
 import { motion, AnimatePresence } from 'framer-motion';
 import Capy from './Capy';
 
+// Flag assets reused across renders
+const FLAG_TEXTURES = [
+    '/models/argentina.svg', '/models/australia.svg', '/models/belgium.svg',
+    '/models/china.svg', '/models/denmark.svg', '/models/egypt.svg',
+    '/models/greece.svg', '/models/hongkong.svg', '/models/jamaica.svg',
+    '/models/japan.svg', '/models/newzealand.svg', '/models/philippines.svg',
+    '/models/singapore.svg', '/models/southafrica.svg', '/models/spain.svg',
+    '/models/srilanka.svg', '/models/thailand.svg', '/models/uk.svg',
+    '/models/usa.svg',
+];
+
+// Preload flag textures so the loading screen can render immediately
+FLAG_TEXTURES.forEach((texturePath) => useTexture.preload(texturePath));
+
 // --- 1. FLAG COMPONENT ---
 function FlagItem({ url, startPos, speed }) {
     // Note: Ensure SVGs exist at public/models/
@@ -84,18 +98,8 @@ function LoadingBar({ durationMs }) {
 export default function LoadingScreen({ isVisible = true, durationMs = 2500 }) {
     if (!isVisible) return null;
 
-    const flagFiles = [
-        "/models/argentina.svg", "/models/australia.svg", "/models/belgium.svg",
-        "/models/china.svg", "/models/denmark.svg", "/models/egypt.svg",
-        "/models/greece.svg", "/models/hongkong.svg", "/models/jamaica.svg",
-        "/models/japan.svg", "/models/newzealand.svg", "/models/philippines.svg",
-        "/models/singapore.svg", "/models/southafrica.svg", "/models/spain.svg",
-        "/models/srilanka.svg", "/models/thailand.svg", "/models/uk.svg",
-        "/models/usa.svg",
-    ];
-
     const flags = useMemo(() => {
-        return flagFiles.map((url, i) => ({
+        return FLAG_TEXTURES.map((url, i) => ({
             id: i,
             url: url,
             // Flags floating slightly above head level (Y=0.5)
