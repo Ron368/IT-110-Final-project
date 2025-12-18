@@ -86,6 +86,21 @@ export default function Welcome() {
         };
     }, []);
 
+    useEffect(() => {
+        if (!showContent) return;
+
+        const hash = window.location.hash;
+        if (!hash) return;
+
+        // Wait a tick to ensure the section is in the DOM
+        const t = setTimeout(() => {
+            const el = document.querySelector(hash);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+
+        return () => clearTimeout(t);
+    }, [showContent]);
+
     return (
         <>
             <Head>
