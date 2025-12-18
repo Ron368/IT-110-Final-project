@@ -274,7 +274,7 @@ export default function ExplorerLogSection() {
     }, [results, selectedId]);
 
     return (
-        <section className="w-full bg-[#FFF8F0] pb-20">
+        <section id="explorer-log" className="w-full bg-[#FFF8F0] pb-20">
             <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 {/* “Desk” + journal wrapper */}
                 <div className="relative mt-10 overflow-hidden rounded-3xl border border-orange-200 bg-stone-100 shadow-[0_18px_60px_-28px_rgba(0,0,0,0.6)]">

@@ -207,7 +207,79 @@
             @endforelse
         </div>
     </div>
+
+    {{-- In-modal (iframe) live feedback for AJAX actions --}}
+    <div id="iframe-feedback" class="hidden rounded-lg px-4 py-3 text-sm font-semibold"></div>
 </div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.self === window.top) return;
+
+    const feedback = document.getElementById('iframe-feedback');
+
+    function showFeedback(message, variant = 'success') {
+        if (!feedback) return;
+
+        feedback.textContent = message;
+        feedback.classList.remove('hidden');
+
+        // reset classes
+        feedback.className = 'rounded-lg px-4 py-3 text-sm font-semibold';
+
+        if (variant === 'success') {
+            feedback.classList.add('bg-green-100', 'text-green-800');
+        } else {
+            feedback.classList.add('bg-red-100', 'text-red-800');
+        }
+
+        // ensure visible (scroll to top of modal content)
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    const forms = document.querySelectorAll('form[action*="/favorite"]');
+
+    forms.forEach((form) => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                const fd = new FormData(form);
+                const spoof = String(fd.get('_method') || '').toUpperCase();
+                const action = spoof === 'DELETE' ? 'removed' : 'saved';
+
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: fd,
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!res.ok) throw new Error(`Favorite request failed (${res.status})`);
+
+                // Show feedback INSIDE the modal
+                showFeedback(
+                    action === 'removed'
+                        ? 'Recipe removed from favorites.'
+                        : 'Recipe saved to favorites.',
+                    'success'
+                );
+
+                // Still notify Dashboard so it can refresh favorites list
+                window.parent.postMessage(
+                    { type: 'favorite:updated', action, recipeId: <?= (int) $recipe->id ?> },
+                    window.location.origin
+                );
+            } catch (err) {
+                showFeedback('Could not update favorites. Please try again.', 'error');
+            }
+        });
+    });
+});
+</script>
 
 

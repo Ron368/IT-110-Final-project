@@ -2,7 +2,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import LoadingScreen from '@/Components/loadingScreen';
 import Capy from '@/Components/Capy';
 import MarqueeBanner from '@/Components/MarqueeBanner';
-import { Head, usePage } from '@inertiajs/react';
+import { Head, usePage, router } from '@inertiajs/react';
 import { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
@@ -152,6 +152,7 @@ function RecipeCard({ recipe, onView, onEdit, onDelete }) {
 
 export default function Dashboard() {
     const { auth, url, favorites = [] } = usePage().props;
+
     const chefName = auth?.user?.name ? `Chef ${auth.user.name}` : 'Chef';
 
     const [isLoading, setIsLoading] = useState(true);
@@ -212,9 +213,10 @@ export default function Dashboard() {
     }, [recipes, searchTerm, moodFilter, cuisineFilter]);
 
     const handleViewRecipe = (recipe) => {
-        if (typeof window !== 'undefined') {
-            window.alert(`Opening ${recipe.title}...`);
-        }
+        // Navigate to the server-rendered recipe details page
+        router.visit(`/recipes/${recipe.id}`);
+        // Alternatively, if you prefer Ziggy:
+        // router.visit(route('recipes.show', recipe.id));
     };
 
     const handleEditNotes = (id) => {
@@ -233,10 +235,49 @@ export default function Dashboard() {
         setRecipes((prev) => prev.filter((recipe) => recipe.id !== id));
     };
 
+    const [toast, setToast] = useState('');
+
+    useEffect(() => {
+        if (!toast) return;
+        const t = setTimeout(() => setToast(''), 2500);
+        return () => clearTimeout(t);
+    }, [toast]);
+
+    const removeFromFavorites = (recipeId) => {
+        router.delete(`/recipes/${recipeId}/favorite`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setToast('Recipe removed from favorites.');
+                router.reload({ only: ['favorites'] });
+                setIsRecipeModalOpen(false);
+            },
+        });
+    };
+
+    useEffect(() => {
+        function onMessage(event) {
+            if (event.origin !== window.location.origin) return;
+
+            const { type } = event.data || {};
+            if (type === 'favorite:updated') {
+                router.reload({ only: ['favorites'] });
+            }
+        }
+
+        window.addEventListener('message', onMessage);
+        return () => window.removeEventListener('message', onMessage);
+    }, []);
+
     return (
         <AuthenticatedLayout header={<MarqueeBanner />}>
             <Head title="Dashboard" />
             <LoadingScreen isVisible={isLoading} durationMs={2500} />
+
+            {toast ? (
+                <div className="fixed right-6 top-6 z-[9999] rounded-xl border border-orange-200 bg-white px-4 py-3 text-sm font-semibold text-gray-800 shadow-lg">
+                    {toast}
+                </div>
+            ) : null}
 
             <div className="dashboard-page-surface">
                 <div className="dashboard-content-wrapper">
@@ -347,7 +388,11 @@ export default function Dashboard() {
                                 <p className="dashboard-section-label">Cookbook</p>
                                 <h2 className="dashboard-section-title">Saved recipes & tasting notes</h2>
                             </div>
-                            <button className="dashboard-add-entry-btn">
+                            <button
+                                type="button"
+                                className="dashboard-add-entry-btn"
+                                onClick={() => router.visit('/#explorer-log')}
+                            >
                                 + New entry
                             </button>
                         </div>
