@@ -215,8 +215,7 @@ export default function Dashboard() {
     const handleViewRecipe = (recipe) => {
         // Navigate to the server-rendered recipe details page
         router.visit(`/recipes/${recipe.id}`);
-        // Alternatively, if you prefer Ziggy:
-        // router.visit(route('recipes.show', recipe.id));
+        
     };
 
     const handleEditNotes = (id) => {

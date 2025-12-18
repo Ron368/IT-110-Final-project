@@ -119,7 +119,6 @@ export default function RecipeTimeline({ initialMeals = null }) {
                 const data = await mealdbRandomBatch(4);
                 const meals = Array.isArray(data?.meals) ? data.meals.slice(0, 4) : [];
 
-                // optional: preload images even here (fallback path)
                 await Promise.all(meals.map((m) => preloadImage(m?.strMealThumb)));
 
                 if (!alive) return;
@@ -141,13 +140,14 @@ export default function RecipeTimeline({ initialMeals = null }) {
     const nodes = useMemo(() => new Array(4).fill(null), []);
 
     return (
-        <section className="w-full bg-[#FFF8F0] py-14">
-            <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <section className="timeline-section w-full">
+            <div className="timeline-overlay">
+                <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 <div className="mb-10">
-                    <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">
+                    <h2 className="text-5xl font-extrabold tracking-tight text-gray-900">
                         Taste Different Flavors from Around the Globe
                     </h2>
-                    <p className="mt-2 max-w-2xl text-gray-600">
+                    <p className="mt-2 max-w-3xl text-gray-600">
                         Explore a curated selection of diverse recipes handpicked by our Capybara chef, each representing a unique culinary tradition from various cultures worldwide.
                     </p>
                 </div>
@@ -214,6 +214,7 @@ export default function RecipeTimeline({ initialMeals = null }) {
                     </div>
                 </div>
             </div>
+        </div>
         </section>
     );
 }

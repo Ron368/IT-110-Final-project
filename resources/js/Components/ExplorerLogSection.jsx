@@ -69,6 +69,12 @@ export default function ExplorerLogSection() {
     const ingredients = useMemo(() => splitLines(detail?.recipe?.ingredients), [detail?.recipe?.ingredients]);
     const instructions = useMemo(() => splitLines(detail?.recipe?.instructions), [detail?.recipe?.instructions]);
 
+    useEffect(() => {
+        if (uiError) {
+            window?.alert?.(uiError);
+        }
+    }, [uiError]);
+
     async function runSearch(e) {
         e?.preventDefault?.();
         setUiError('');
@@ -151,7 +157,11 @@ export default function ExplorerLogSection() {
     }
 
     function refreshSelected() {
-        if (selectedId) loadRecipe(selectedId);
+        if (!selectedId) return;
+        const [source, ...rest] = selectedId.split(':');
+        const id = rest.join(':');
+        if (!source || !id) return;
+        loadRecipe({ source, id });
     }
 
     function toggleFavorite() {
@@ -279,7 +289,7 @@ export default function ExplorerLogSection() {
                             <div className="flex items-baseline justify-between gap-4">
                                 <div>
                                     <h3
-                                        className="text-2xl font-extrabold text-gray-900"
+                                        className="text-7xl font-extrabold text-gray-900"
                                         style={{ fontFamily: "'Dancing Script', cursive" }}
                                     >
                                         Explorer Log
@@ -315,12 +325,6 @@ export default function ExplorerLogSection() {
                                     Tip: try “chicken”, “rice”, “tomato”…
                                 </p>
                             </form>
-
-                            {uiError && (
-                                <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                                    {uiError}
-                                </div>
-                            )}
 
                             {/* Results list */}
                             <div className="mt-6 space-y-3">
@@ -385,7 +389,7 @@ export default function ExplorerLogSection() {
                                             </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex flex-wrap items-center gap-2">
                                             {!user ? (
                                                 <Link
                                                     href={route('login')}
@@ -407,6 +411,13 @@ export default function ExplorerLogSection() {
                                                     {detail.isFavorited ? 'Remove favorite' : 'Save to favorites'}
                                                 </button>
                                             )}
+
+                                            <Link
+                                                href="/dashboard"
+                                                className="rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-50"
+                                            >
+                                                Go to my cookbook
+                                            </Link>
                                         </div>
                                     </div>
 

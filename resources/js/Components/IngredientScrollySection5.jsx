@@ -37,7 +37,7 @@ export default function IngredientScrollySection5() {
     const marqueeX = useTransform(smoothProgress, [0, 1], ['0%', '-20%']);
 
     return (
-        <section ref={sectionRef} className="relative w-full bg-[#FDFBF7] overflow-hidden min-h-[150vh] flex flex-col items-center justify-center">
+        <section ref={sectionRef} className="ingredient-scrolly-section">
             
             {/* Contextual Header Text */}
             <div className="absolute top-12 sm:top-20 z-20 text-center px-4 w-full">

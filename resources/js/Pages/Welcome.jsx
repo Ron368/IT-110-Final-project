@@ -54,10 +54,10 @@ export default function Welcome() {
         let alive = true;
 
         (async () => {
-            // 1) keep the loading screen up for at least 8s
+            // keep the loading screen up for at least 8s
             const minDelay = new Promise((r) => setTimeout(r, 8000));
 
-            // 2) fetch meals + preload their images during the loading screen
+            // fetch meals + preload their images during the loading screen
             const preloadMeals = (async () => {
                 try {
                     const data = await mealdbRandomBatch(4); // hits /api/mealdb/random-batch
@@ -133,7 +133,6 @@ export default function Welcome() {
                             animate={{ opacity: showContent ? 1 : 0 }}
                             transition={{ duration: 1.5, delay: 0.3 }}
                         >
-                            {/* USE THE CSS CLASS HERE */}
                             <div className="welcome-canvas-container">
                                 {/* Ground Shadow */}
                                 <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-96 h-32 bg-gradient-to-br from-black/25 via-black/15 to-transparent rounded-full blur-3xl" />
@@ -166,7 +165,6 @@ export default function Welcome() {
 
                         {/* Right Column - Text Content */}
                         <div className="welcome-hero-right">
-                            {/* USE THE CSS CLASSES HERE */}
                             <motion.h1 
                                 className="welcome-title"
                                 initial={{ opacity: 0, y: -20 }}
@@ -231,6 +229,21 @@ export default function Welcome() {
                 {showContent && <IngredientScrollySection6 />}
 
                 {showContent && <ExplorerLogSection />}
+                {/* Footer Section */}
+                {showContent && (
+                    <footer className="welcome-footer">
+                        <div className="welcome-footer-inner">
+                            <div className="welcome-footer-brand-col">
+                                <span className="welcome-footer-brand">Capy & Co.</span>
+                                <span className="welcome-footer-tagline">Cooking with joy, one paw at a time.</span>
+                            </div>
+
+                            <div className="welcome-footer-copyright">
+                                &copy; {new Date().getFullYear()} Capy & Co. <br /> All rights reserved.
+                            </div>
+                        </div>
+                    </footer>
+                )}
             </div>
         </>
     );
