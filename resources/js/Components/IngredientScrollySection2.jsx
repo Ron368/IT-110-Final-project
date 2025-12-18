@@ -42,7 +42,7 @@ export default function IngredientScrollySection2({
     }, [ingredient]);
 
     return (
-        <section ref={sectionRef} className="relative w-full bg-[#FDFBF7] overflow-hidden min-h-screen flex flex-col items-center justify-center">
+        <section ref={sectionRef} className="ingredient-scrolly-section">
             
             {/* Contextual Header Text */}
             <div className="absolute top-12 sm:top-20 z-20 text-center px-4 w-full">

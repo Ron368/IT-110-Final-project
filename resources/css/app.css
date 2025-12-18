@@ -80,6 +80,42 @@
         @apply max-w-2xl;
     }
 
+/* ------------------------------------------------------------ */
+    /* Footer                                                      */
+    /* ------------------------------------------------------------ */
+    .welcome-footer {
+        @apply relative z-20 border-t bg-gradient-to-b from-cream to-text py-16 mt-auto;
+    }
+
+    .welcome-footer-inner {
+        @apply mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-4 sm:px-6 lg:px-8 md:flex-row;
+    }
+
+    .welcome-footer-brand-col {
+        @apply flex flex-col items-center gap-1 md:items-start;
+    }
+
+    .welcome-footer-brand {
+        @apply text-3xl font-bold text-[#5b2c1a] transition duration-200 hover:text-orange-600;
+        font-family: 'Dancing Script', cursive;
+    }
+
+    .welcome-footer-tagline {
+        @apply text-sm font-medium text-[#5b2c1a]/70;
+    }
+
+    .welcome-footer-nav {
+        @apply flex flex-wrap justify-center gap-8;
+    }
+
+    .welcome-footer-link {
+        @apply text-xs font-bold uppercase tracking-[0.15em] text-[#5b2c1a]/60 transition duration-150 hover:text-orange-600;
+    }
+
+    .welcome-footer-copyright {
+        @apply mt-8 text-center text-xs text-[#5b2c1a]/40 md:mt-0 md:text-right;
+    }
+
     /* ------------------------------------------------------------ */
     /* Navbar                                                      */
     /* ------------------------------------------------------------ */
@@ -327,6 +363,50 @@
     .recipe-card-tertiary-btn {
         @apply rounded-full px-4 py-2 text-sm font-semibold text-gray-500 transition hover:text-red-500;
     }
+
+    .timeline-section {
+        background-image: url('/bg.png');
+        background-size: cover;
+    }
+
+    .timeline-overlay {
+        @apply w-full py-14;
+        background-color: rgba(255, 248, 240, 0.801);
+    }
+
+    .ingredient-scrolly-section {
+        @apply relative overflow-hidden w-full;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+        isolation: isolate;
+        -webkit-mask-image: radial-gradient(ellipse 90% 140% at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 100%);
+        mask-image: radial-gradient(ellipse 90% 140% at center, rgba(0, 0, 0, 1) 65%, rgba(0, 0, 0, 0) 100%);
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+    }
+
+    .ingredient-scrolly-section::before,
+    .ingredient-scrolly-section::after {
+        content: '';
+        position: absolute;
+        left: -12%;
+        right: -12%;
+        height: 360px;
+        pointer-events: none;
+        z-index: 5;
+        filter: blur(85px);
+        opacity: 0.8;
+    }
+
+    .ingredient-scrolly-section::before {
+        top: -220px;
+        background: linear-gradient(180deg, rgba(253, 251, 247, 1) 0%, rgba(253, 251, 247, 0) 70%);
+    }
+
+    .ingredient-scrolly-section::after {
+        bottom: -220px;
+        background: linear-gradient(0deg, rgba(253, 251, 247, 1) 0%, rgba(253, 251, 247, 0) 70%);
+    }
 }
 
 @keyframes marquee-pan {
@@ -337,3 +417,4 @@
         transform: translateX(-50%);
     }
 }
+        

@@ -216,6 +216,21 @@ export default function Welcome() {
                 {showContent && <IngredientScrollySection6 />}
 
                 {showContent && <ExplorerLogSection />}
+                {/* Footer Section */}
+                {showContent && (
+                    <footer className="welcome-footer">
+                        <div className="welcome-footer-inner">
+                            <div className="welcome-footer-brand-col">
+                                <span className="welcome-footer-brand">Capy & Co.</span>
+                                <span className="welcome-footer-tagline">Cooking with joy, one paw at a time.</span>
+                            </div>
+
+                            <div className="welcome-footer-copyright">
+                                &copy; {new Date().getFullYear()} Capy & Co. <br /> All rights reserved.
+                            </div>
+                        </div>
+                    </footer>
+                )}
             </div>
         </>
     );
