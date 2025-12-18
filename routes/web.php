@@ -55,4 +55,12 @@ Route::prefix('api/mealdb')->group(function () {
     Route::get('random-batch', [MealDBController::class, 'randomBatch'])->name('mealdb.randomBatch');
 });
 
+Route::prefix('api/recipes')->group(function () {
+    Route::get('search', [SearchController::class, 'apiSearch'])->name('recipes.api.search');
+    Route::get('{recipe}', [RecipeController::class, 'apiShow'])->whereNumber('recipe')->name('recipes.api.show');
+    Route::post('import/mealdb/{id}', [RecipeController::class, 'importFromMealDB'])
+        ->whereNumber('id')
+        ->name('recipes.api.importMealdb');
+});
+
 require __DIR__.'/auth.php';

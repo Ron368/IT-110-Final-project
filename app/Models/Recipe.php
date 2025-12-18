@@ -4,13 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Recipe extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'title', 'description', 'ingredients', 'instructions', 'image'
+        'mealdb_id',
+        'title',
+        'description',
+        'ingredients',
+        'instructions',
+        'image',
     ];
 
     public function favorites()
@@ -18,7 +24,7 @@ class Recipe extends Model
         return $this->belongsToMany(User::class, 'favorites');
     }
 
-    public function reviews()
+    public function reviews(): MorphMany
     {
         return $this->morphMany(Review::class, 'reviewable');
     }
