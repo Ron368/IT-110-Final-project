@@ -6,6 +6,7 @@ use App\Http\Controllers\RecipeController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -19,9 +20,10 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Replace the existing /dashboard closure:
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // Recipe show page
 Route::get('/recipes/{recipe}', [RecipeController::class, 'show'])->name('recipes.show');
@@ -53,6 +55,14 @@ Route::prefix('api/mealdb')->group(function () {
     Route::get('random', [MealDBController::class, 'random'])->name('mealdb.random');
     Route::get('categories', [MealDBController::class, 'categories'])->name('mealdb.categories');
     Route::get('random-batch', [MealDBController::class, 'randomBatch'])->name('mealdb.randomBatch');
+});
+
+Route::prefix('api/recipes')->group(function () {
+    Route::get('search', [SearchController::class, 'apiSearch'])->name('recipes.api.search');
+    Route::get('{recipe}', [RecipeController::class, 'apiShow'])->whereNumber('recipe')->name('recipes.api.show');
+    Route::post('import/mealdb/{id}', [RecipeController::class, 'importFromMealDB'])
+        ->whereNumber('id')
+        ->name('recipes.api.importMealdb');
 });
 
 require __DIR__.'/auth.php';

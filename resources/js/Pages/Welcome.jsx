@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
-import LoadingScreen from '@/Components/LoadingScreen';
+import LoadingScreen from '@/Components/loadingScreen';
 import Capy from '@/Components/Capy';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows } from '@react-three/drei'; //
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import RecipeTimeline from '@/Components/RecipeTimeline';
+import ExplorerLogSection from '@/Components/ExplorerLogSection';
 import { mealdbRandomBatch } from '@/api/mealdb';
 
 function preloadImage(url) {
@@ -176,6 +177,8 @@ export default function Welcome() {
                 </motion.div>
 
                 {showContent && <RecipeTimeline initialMeals={preloadedMeals} />}
+
+                {showContent && <ExplorerLogSection />}
             </div>
         </>
     );
