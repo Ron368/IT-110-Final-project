@@ -8,44 +8,15 @@ import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, ContactShadows } from '@react-three/drei';
 
-const SEED_RECIPES = [
-    {
-        id: 1,
-        title: 'Sunrise Shakshuka',
-        cuisine: 'Middle Eastern',
-        mood: 'Comfort',
-        notes: 'Finish with feta crumbles and mint just before serving.',
-        cover: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&w=800&q=80',
-        tags: ['brunch', 'savory'],
-    },
-    {
-        id: 2,
-        title: 'Miso Butter Ramen',
-        cuisine: 'Japanese',
-        mood: 'Cozy Night',
-        notes: 'Use roasted corn and a six-minute egg for garnish.',
-        cover: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
-        tags: ['broth', 'noodles'],
-    },
-    {
-        id: 3,
-        title: 'Charred Citrus Salmon',
-        cuisine: 'Nordic',
-        mood: 'Light & Bright',
-        notes: 'Serve over dill yogurt; remember the toasted almonds.',
-        cover: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
-        tags: ['seafood', 'dinner'],
-    },
-    {
-        id: 4,
-        title: 'Cardamom Honey Cake',
-        cuisine: 'Scandinavian',
-        mood: 'Sweet Treat',
-        notes: 'Brush layers with orange blossom syrup for extra aroma.',
-        cover: 'https://images.unsplash.com/photo-1504753793650-d4a2b783c15f?auto=format&fit=crop&w=800&q=80',
-        tags: ['dessert', 'bake'],
-    },
-];
+function parseAreaCategory(description) {
+    // Your import sets: "Area • Category"
+    const raw = String(description || '');
+    const parts = raw.split('•').map((s) => s.trim()).filter(Boolean);
+    return {
+        area: parts[0] || '',
+        category: parts[1] || '',
+    };
+}
 
 function CapyMotionController({ animation, setAnimation, groupRef, elapsedRef, startX, targetX, duration, onRunComplete }) {
     useFrame((_, delta) => {
@@ -180,11 +151,35 @@ function RecipeCard({ recipe, onView, onEdit, onDelete }) {
 }
 
 export default function Dashboard() {
-    const { auth, url } = usePage().props;
+    const { auth, url, favorites = [] } = usePage().props;
     const chefName = auth?.user?.name ? `Chef ${auth.user.name}` : 'Chef';
 
     const [isLoading, setIsLoading] = useState(true);
-    const [recipes, setRecipes] = useState(SEED_RECIPES);
+
+    // Build dashboard cards from DB favorites
+    const dbRecipes = useMemo(() => {
+        return (Array.isArray(favorites) ? favorites : []).map((r) => {
+            const { area, category } = parseAreaCategory(r.description);
+
+            return {
+                id: r.id,
+                title: r.title,
+                cuisine: area || 'Global',
+                mood: 'Saved',
+                notes: r.description || 'Saved from Explorer Log.',
+                cover: r.image || 'https://images.unsplash.com/photo-1504753793650-d4a2b783c15f?auto=format&fit=crop&w=800&q=80',
+                tags: category ? [category.toLowerCase().replace(/\s+/g, '-')] : [],
+            };
+        });
+    }, [favorites]);
+
+    // Use DB favorites as the source of truth (instead of placeholders)
+    const [recipes, setRecipes] = useState(dbRecipes);
+
+    useEffect(() => {
+        setRecipes(dbRecipes);
+    }, [dbRecipes]);
+
     const [searchTerm, setSearchTerm] = useState('');
     const [moodFilter, setMoodFilter] = useState('all');
     const [cuisineFilter, setCuisineFilter] = useState('all');
