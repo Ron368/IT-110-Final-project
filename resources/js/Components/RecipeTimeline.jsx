@@ -119,7 +119,6 @@ export default function RecipeTimeline({ initialMeals = null }) {
                 const data = await mealdbRandomBatch(4);
                 const meals = Array.isArray(data?.meals) ? data.meals.slice(0, 4) : [];
 
-                // optional: preload images even here (fallback path)
                 await Promise.all(meals.map((m) => preloadImage(m?.strMealThumb)));
 
                 if (!alive) return;

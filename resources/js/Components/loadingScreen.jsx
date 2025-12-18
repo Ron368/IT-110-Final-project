@@ -19,9 +19,8 @@ const FLAG_TEXTURES = [
 // Preload flag textures so the loading screen can render immediately
 FLAG_TEXTURES.forEach((texturePath) => useTexture.preload(texturePath));
 
-// --- 1. FLAG COMPONENT ---
+// -- FLAG COMPONENT ---
 function FlagItem({ url, startPos, speed }) {
-    // Note: Ensure SVGs exist at public/models/
     const texture = useTexture(url);
 
     const meshRef = useRef();
@@ -47,7 +46,7 @@ function FlagItem({ url, startPos, speed }) {
     );
 }
 
-// --- 2. RUNNING CAPYBARA ---
+// -- RUNNING CAPYBARA ---
 function RunnerCapy({ durationMs }) {
     const groupRef = useRef();
     
@@ -82,7 +81,7 @@ function RunnerCapy({ durationMs }) {
     );
 }
 
-// --- 3. LOADING BAR UI ---
+// --- LOADING BAR UI ---
 function LoadingBar({ durationMs }) {
     return (
         <motion.div
@@ -94,7 +93,7 @@ function LoadingBar({ durationMs }) {
     );
 }
 
-// --- 4. MAIN COMPONENT ---
+// --- MAIN COMPONENT ---
 export default function LoadingScreen({ isVisible = true, durationMs = 2500 }) {
     if (!isVisible) return null;
 
@@ -119,7 +118,6 @@ export default function LoadingScreen({ isVisible = true, durationMs = 2500 }) {
                 className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#fef3c7]"
             >
                 {/* 3D SCENE CONTAINER */}
-                {/* Note: This container is wider (600px) than the bar (256px) to allow flags to fly in/out */}
                 <div className="w-[400px] h-[200px] relative overflow-hidden rounded-t-xl bg-[#fef3c7]">
                     <Canvas shadows camera={{ position: [0, 1, 10], fov: 40 }}>
                         <ambientLight intensity={0.7} />

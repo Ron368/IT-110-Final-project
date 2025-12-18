@@ -33,7 +33,6 @@ export default function IngredientScrollySection6({
     const steamY3 = useTransform(smoothProgress, [0, 1], [50, -150]);
 
     const imgUrl = useMemo(() => {
-        // You can swap this URL with the actual finished dish image from the API or a local asset
         return `https://www.themealdb.com/images/media/meals/wrpwuu1511786491.jpg`; 
     }, []);
 
