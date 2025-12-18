@@ -3,10 +3,16 @@ import { Head } from '@inertiajs/react';
 import LoadingScreen from '@/Components/loadingScreen';
 import Capy from '@/Components/Capy';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei'; //
+import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import Navbar from '@/Components/Navbar';
 import RecipeTimeline from '@/Components/RecipeTimeline';
+import IngredientScrollySection from '@/Components/IngredientScrollySection';
+import IngredientScrollySection2 from '@/Components/IngredientScrollySection2';
+import IngredientScrollySection3 from '@/Components/IngredientScrollySection3';
+import IngredientScrollySection4 from '@/Components/IngredientScrollySection4';
+import IngredientScrollySection5 from '@/Components/IngredientScrollySection5';
+import IngredientScrollySection6 from '@/Components/IngredientScrollySection6';
 import ExplorerLogSection from '@/Components/ExplorerLogSection';
 import { mealdbRandomBatch } from '@/api/mealdb';
 
@@ -177,6 +183,37 @@ export default function Welcome() {
                 </motion.div>
 
                 {showContent && <RecipeTimeline initialMeals={preloadedMeals} />}
+
+                {showContent && (
+                    <IngredientScrollySection
+                        ingredient="Eggplant"
+                        headlineLines={['EGGPLANT', 'EGGPLANT', 'EGGPLANT']}
+                    />
+                )}
+
+                {showContent && (
+                    <IngredientScrollySection2
+                        ingredient="Yellow Pepper"
+                        headlineLines={['CRUNCHY', 'YELLOW', 'PEPPERS']}
+                    />
+                )}
+
+                {showContent && (
+                    <IngredientScrollySection3
+                        ingredient="Zucchini"
+                        headlineLines={['FRESH', 'GARDEN', 'CRUNCH']}
+                    />
+                )}
+
+                {showContent && (
+                    <IngredientScrollySection4
+                        ingredient="Tomato"
+                    />
+                )}
+
+                {showContent && <IngredientScrollySection5 />}
+
+                {showContent && <IngredientScrollySection6 />}
 
                 {showContent && <ExplorerLogSection />}
             </div>
