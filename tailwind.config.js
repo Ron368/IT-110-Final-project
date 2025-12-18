@@ -14,6 +14,7 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                dancing: ['"Dancing Script"', 'cursive'],
             },
             colors: {
                 'text': '#553018',
