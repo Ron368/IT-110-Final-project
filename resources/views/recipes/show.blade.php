@@ -234,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback.classList.add('bg-red-100', 'text-red-800');
         }
 
-        // ensure visible (scroll to top of modal content)
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -276,6 +275,59 @@ document.addEventListener('DOMContentLoaded', () => {
                 );
             } catch (err) {
                 showFeedback('Could not update favorites. Please try again.', 'error');
+            }
+        });
+    });
+
+    // NEW: AJAX submit for review create/update when inside dashboard iframe
+    const reviewForms = document.querySelectorAll('form[action*="/review"], form[action*="/reviews/"]');
+
+    reviewForms.forEach((form) => {
+        // Skip the "Delete my review" form (no textarea)
+        const bodyField = form.querySelector('textarea[name="body"]');
+        if (!bodyField) return;
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                const fd = new FormData(form);
+
+                const res = await fetch(form.action, {
+                    method: 'POST', // method spoofing via _method in FormData
+                    body: fd,
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (res.status === 422) {
+                    const j = await res.json().catch(() => null);
+                    const first =
+                        (j?.errors && Object.values(j.errors)?.flat()?.[0]) ||
+                        j?.message ||
+                        'Validation failed.';
+                    showFeedback(first, 'error');
+                    return;
+                }
+
+                if (!res.ok) {
+                    showFeedback(`Could not save review (${res.status}).`, 'error');
+                    return;
+                }
+
+                // If server returns JSON, great; if it redirects to HTML, this still counts as success.
+                showFeedback('Review saved.', 'success');
+
+                // Tell Dashboard to close the popup
+                window.parent.postMessage(
+                    { type: 'review:saved', recipeId: <?= (int) $recipe->id ?> },
+                    window.location.origin
+                );
+            } catch {
+                showFeedback('Could not save review. Please try again.', 'error');
             }
         });
     });

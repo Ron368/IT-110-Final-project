@@ -13,17 +13,16 @@ class ReviewController extends Controller
     /**
      * Store a new review
      */
-    public function store(Request $request)
+    public function store(Request $request, Recipe $recipe)
     {
         $request->validate([
-            'recipe_id' => 'required|exists:recipes,id',
-            'rating'    => 'required|integer|between:1,5',
-            'body'      => 'required|string|min:10|max:1000',
+            'rating' => 'required|integer|between:1,5',
+            'body'   => 'required|string|min:10|max:1000',
         ]);
 
         // Prevent user from reviewing the same recipe twice
         $alreadyReviewed = Auth::user()->reviews()
-            ->where('reviewable_id', $request->recipe_id)
+            ->where('reviewable_id', $recipe->id)
             ->where('reviewable_type', Recipe::class)
             ->exists();
 
@@ -32,7 +31,7 @@ class ReviewController extends Controller
         }
 
         Auth::user()->reviews()->create([
-            'reviewable_id'   => $request->recipe_id,
+            'reviewable_id'   => $recipe->id,
             'reviewable_type' => Recipe::class,
             'rating'          => $request->rating,
             'body'            => $request->body,
