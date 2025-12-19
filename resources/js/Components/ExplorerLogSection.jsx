@@ -1,5 +1,5 @@
 import { Link, router, useForm, usePage } from '@inertiajs/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 function splitLines(text) {
     return (text ?? '')
@@ -46,6 +46,9 @@ export default function ExplorerLogSection() {
     const [results, setResults] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
 
+    const searchCache = useRef(new Map());
+    const searchAbort = useRef(null);
+
     const [detailLoading, setDetailLoading] = useState(false);
     const [detail, setDetail] = useState(null);
     const [uiError, setUiError] = useState('');
@@ -75,6 +78,12 @@ export default function ExplorerLogSection() {
         }
     }, [uiError]);
 
+    useEffect(() => {
+        return () => {
+            searchAbort.current?.abort();
+        };
+    }, []);
+
     async function runSearch(e) {
         e?.preventDefault?.();
         setUiError('');
@@ -87,10 +96,24 @@ export default function ExplorerLogSection() {
             return;
         }
 
+        const cacheKey = query.toLowerCase();
+        const cached = searchCache.current.get(cacheKey);
+        if (cached) {
+            setResults(cached.results);
+        }
+
+        if (searchAbort.current) {
+            searchAbort.current.abort();
+        }
+
+        const controller = new AbortController();
+        searchAbort.current = controller;
+
         setSearching(true);
         try {
             const res = await fetch(`/api/recipes/search?q=${encodeURIComponent(query)}`, {
                 headers: { Accept: 'application/json' },
+                signal: controller.signal,
             });
             if (!res.ok) throw new Error(`Search failed (${res.status})`);
             const json = await res.json();
@@ -100,9 +123,19 @@ export default function ExplorerLogSection() {
                 .filter((x) => (x.source === 'mealdb' || x.source === 'local') && x.id);
 
             setResults(clean);
+            searchCache.current.set(cacheKey, {
+                results: clean,
+                cachedAt: Date.now(),
+            });
         } catch (err) {
+            if (err?.name === 'AbortError') {
+                return;
+            }
             setUiError(err?.message || 'Failed to search recipes.');
         } finally {
+            if (searchAbort.current === controller) {
+                searchAbort.current = null;
+            }
             setSearching(false);
         }
     }

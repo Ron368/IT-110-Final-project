@@ -15,6 +15,7 @@ import IngredientScrollySection5 from '@/Components/IngredientScrollySection5';
 import IngredientScrollySection6 from '@/Components/IngredientScrollySection6';
 import ExplorerLogSection from '@/Components/ExplorerLogSection';
 import { mealdbRandomBatch } from '@/api/mealdb';
+const STATIC_BACKGROUND_ASSETS = ['/bg.png'];
 
 function preloadImage(url) {
     if (!url) return Promise.resolve();
@@ -74,7 +75,11 @@ export default function Welcome() {
                 }
             })();
 
-            await Promise.all([minDelay, preloadMeals]);
+            const staticAssetPreload = Promise.all(
+                STATIC_BACKGROUND_ASSETS.map((asset) => preloadImage(asset))
+            );
+
+            await Promise.all([minDelay, preloadMeals, staticAssetPreload]);
 
             if (!alive) return;
             setIsLoading(false);
@@ -107,7 +112,13 @@ export default function Welcome() {
                 <title>Welcome</title>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link
+                    rel="preload"
+                    as="style"
+                    href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap"
+                />
                 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&display=swap" rel="stylesheet" />
+                <link rel="preload" as="image" href="/bg.png" />
             </Head>
             
             <LoadingScreen isVisible={isLoading} durationMs={8000} />
