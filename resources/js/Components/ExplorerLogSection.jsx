@@ -278,24 +278,35 @@ export default function ExplorerLogSection() {
 
         setUiError('');
 
-        const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        try {
+            const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-        const res = await fetch(`/api/recipes/import/mealdb/${encodeURIComponent(detail.recipe.id)}`, {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                Accept: 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}),
-            },
-        });
+            const res = await fetch(`/api/recipes/import/mealdb/${encodeURIComponent(detail.recipe.id)}`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {}),
+                },
+            });
 
-        if (!res.ok) {
-            throw new Error(`Import failed (${res.status})`);
+            if (!res.ok) {
+                let msg = `Import failed (${res.status})`;
+                try {
+                    const j = await res.json();
+                    if (j?.message) msg = j.message;
+                } catch {
+                    // ignore json parse
+                }
+                throw new Error(msg);
+            }
+
+            const json = await res.json();
+            await loadRecipe({ source: 'local', id: String(json.recipe_id) });
+        } catch (err) {
+            setUiError(err?.message || 'Failed to import recipe.');
         }
-
-        const json = await res.json();
-        await loadRecipe({ source: 'local', id: String(json.recipe_id) });
     }
 
     useEffect(() => {

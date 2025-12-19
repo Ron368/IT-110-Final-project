@@ -9,6 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
+            // store MealDB id so we can de-dupe imports
             $table->string('mealdb_id')->nullable()->unique()->after('id');
         });
     }

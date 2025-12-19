@@ -261,6 +261,11 @@ export default function Dashboard() {
             if (type === 'favorite:updated') {
                 router.reload({ only: ['favorites'] });
             }
+
+            if (type === 'review:saved') {
+                setToast('Review saved.');
+                setIsRecipeModalOpen(false);
+            }
         }
 
         window.addEventListener('message', onMessage);
